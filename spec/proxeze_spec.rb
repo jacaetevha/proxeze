@@ -91,4 +91,43 @@ describe Proxeze do
     instance.class.send :include, Visibility
     instance.should respond_to(:visible?)
   end
+
+  it "should create a new proxy around the same delegate object" do
+    Proxeze.proxy NonNestedClass
+    instance = NonNestedClass.new
+    copy     = instance.new_proxy
+
+    instance.class.should == Proxeze::NonNestedClass
+    copy.class.should == Proxeze::NonNestedClass
+    
+    instance.__getobj__.should be_equal(copy.__getobj__)
+    instance.__getobj__.should == copy.__getobj__
+    instance.baz.should == 2
+    copy.baz.should == 2
+    
+    copy.class.send :include, NewBaz
+    instance.__getobj__.should == copy.__getobj__
+    instance.baz.should == 'new baz'
+    copy.baz.should == 'new baz'
+  end
+
+  it "should create a new proxy around a clone of the delegate object" do
+    Proxeze.proxy Testing::NestedClass
+    instance = Testing::NestedClass.new
+    copy     = instance.clone
+
+    instance.class.should == Proxeze::TestingNestedClass
+    copy.class.should == Proxeze::TestingNestedClass
+    
+    instance.__getobj__.should_not be_equal(copy.__getobj__)
+    instance.__getobj__.should == copy.__getobj__
+    instance.bar.should == 10_000_009
+    copy.bar.should == 10_000_009
+
+    copy_meta = class << copy.__getobj__; self; end
+    copy_meta.send :include, NewBar
+    instance.bar.should == 10_000_009
+    copy.bar.should == 'new bar'
+    instance.__getobj__.should_not == copy.__getobj__
+  end
 end

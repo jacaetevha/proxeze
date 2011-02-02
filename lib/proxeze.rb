@@ -29,15 +29,18 @@ module Proxeze
     self.const_get cls_name
   end
   
+  # create a proxy object for the given object
   def self.for object
     self.proxy( object.class ).new( object )
   end
   
+  # create a new proxy around a clone of my delegate object
   def clone
-    self.class.for __getobj__.clone
+    Proxeze.for __getobj__.clone
   end
 
-  def proxy
-    self.class.for __getobj__
+  # create a new proxy object for my delegate
+  def new_proxy
+    Proxeze.for __getobj__
   end
 end
