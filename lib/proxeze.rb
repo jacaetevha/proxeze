@@ -30,7 +30,7 @@ module Proxeze
   end
   
   def self.for object
-    self.class.proxy( object.class ).new( object )
+    self.proxy( object.class ).new( object )
   end
   
   def clone
