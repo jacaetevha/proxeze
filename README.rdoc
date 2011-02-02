@@ -68,10 +68,13 @@ Let's say we need to be able to hide c6 and its children at some point, to do th
   
   c6.be_invisible!
   
-Finish this...
+So, we've added behavior to the proxied objects, but not the Category objects themselves.
 
-== Getting at the proxied object
-The Delegate class offers the #__getobj__ method for getting at the target object.
+You can also proxy an object without overriding the #new method on its class:
+
+  p = Proxeze.for(1)
+  p.class             # Proxeze::Fixnum
+  p.__getobj__.class  # Fixnum
 
   class A
     attr_accessor :foo
@@ -81,7 +84,17 @@ The Delegate class offers the #__getobj__ method for getting at the target objec
   p = Proxeze.for(A.new)
   p.class             # => Proxeze::A 
   p.__getobj__.class  # => A 
-  
+
+This allows you to proxy specific instances of your classes without proxying all subsequent instances. Of course, you can proxy the class and all subsequent instances even after you've proxied a specific instance:
+
+  p = Proxeze.for(A.new)
+  p.class             # => Proxeze::A 
+  p.__getobj__.class  # => A
+
+  Proxeze.proxeze A
+  a = A.new
+  a.class             # => Proxeze::A 
+  a.__getobj__.class  # => A
 
 == Contributing to proxeze
  
