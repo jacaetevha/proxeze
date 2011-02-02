@@ -1,5 +1,23 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
+module Visibility
+  def visible?
+    @visible ||= true
+  end
+  
+  def be_invisible!
+    @visible = false
+    categories.each {|e| e.be_invisible!}
+    self
+  end
+  
+  def be_visible!
+    @visible = true
+    categories.each {|e| e.be_visible!}
+    self
+  end
+end
+
 module Testing
   class NestedClass
     def foo; 1; end
@@ -49,5 +67,14 @@ describe Proxeze do
     
     instance.should respond_to(:bar)
     instance.bar.should == 10_000_009
+  end
+  
+  it "should be able to add behavior to the proxy without disturbing the wrapped object" do
+    Proxeze.proxy NonNestedClass
+    instance = NonNestedClass.new
+    
+    instance.should_not respond_to(:visible?)
+    Proxeze::NonNestedClass.send :include, Visibility
+    instance.should respond_to(:visible?)
   end
 end
