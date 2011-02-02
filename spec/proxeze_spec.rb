@@ -83,13 +83,25 @@ describe Proxeze do
   end
   
   it "should proxy an object" do
-    Proxeze.class_defined?('NonNestedClass').should == false
-    instance = Proxeze.for(NonNestedClass.new)
-    Proxeze.class_defined?('NonNestedClass').should == true
+    Proxeze.class_defined?('ClassForProxyingAnInstance').should == false
+    instance = Proxeze.for(ClassForProxyingAnInstance.new)
+    ClassForProxyingAnInstance.methods.collect{|e| e.to_s}.include?('new_with_extra_behavior').should == false
+    ClassForProxyingAnInstance.methods.collect{|e| e.to_s}.include?('new_without_extra_behavior').should == false
+    Proxeze.class_defined?('ClassForProxyingAnInstance').should == true
     
     instance.should_not respond_to(:visible?)
     instance.class.send :include, Visibility
     instance.should respond_to(:visible?)
+  end
+  
+  it "should redefine the #new method when the class is proxied, even after an instance of the class was proxied" do
+    Proxeze.class_defined?('ClassForProxyingAfterAnInstanceWasProxied').should == false
+    instance = Proxeze.for(ClassForProxyingAfterAnInstanceWasProxied.new)
+    Proxeze.class_defined?('ClassForProxyingAfterAnInstanceWasProxied').should == true
+    
+    Proxeze.proxy ClassForProxyingAfterAnInstanceWasProxied
+    instance = ClassForProxyingAfterAnInstanceWasProxied.new
+    instance.__getobj__.class.methods.collect{|e| e.to_s}.should include('new_without_extra_behavior')
   end
 
   it "should create a new proxy around the same delegate object" do
@@ -129,5 +141,11 @@ describe Proxeze do
     instance.bar.should == 10_000_009
     copy.bar.should == 'new bar'
     instance.__getobj__.should_not == copy.__getobj__
+  end
+  
+  it "should not attempt to redefine #new in the class of the proxied object" do
+    lambda{Proxeze.for(1)}.should_not raise_error(NameError)
+    proxy = Proxeze.for(1)
+    proxy.should be_kind_of(Proxeze::Fixnum)
   end
 end

@@ -33,6 +33,12 @@ module NewBar
   def bar; 'new bar'; end
 end
 
+class ClassForProxyingAnInstance
+end
+
+class ClassForProxyingAfterAnInstanceWasProxied
+end
+
 class Category
   attr_accessor :categories
   attr_reader   :name
