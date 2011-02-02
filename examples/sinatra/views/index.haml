@@ -1,0 +1,26 @@
+#file_contents{:style => 'overflow: auto; position: absolute; width: 80%; height: 90%; top: 2px; right: 10px; background-color: white; border: 1px solid #222; padding: 7px'}
+
+- visible_listings = ALL_LISTINGS.select{|e| e.visible?}
+
+- if visible_listings.first.parent.nil?
+  .file_listing
+    %a{:href => "/"} up
+
+- visible_listings.each do |item|
+  - if item.parent
+    .file_listing
+      %a{:href => "/#{item.parent.name}"}&= item.parent.name
+  .file_listing
+    - if item.directory?
+      %a{:href => "/#{item.name}"}&= item.name
+      - unless @top
+        - item.children.each do |child|
+          .file_listing
+            - if child.directory?
+              %a{:href => "/#{child.full_path}"}&= child.name
+            - else
+              %a{:onclick => "show_file('#{child.full_path}');", :href => "##{child.name}"}&= child.name
+
+    - else
+      %a{:onclick => "show_file('#{item.full_path}');", :href => "##{item.name}"}&= item.name
+
