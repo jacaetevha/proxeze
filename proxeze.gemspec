@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/proxeze.rb",
+    "proxeze.gemspec",
     "spec/definitions.rb",
     "spec/proxeze_spec.rb",
     "spec/spec_helper.rb"
