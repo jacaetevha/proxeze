@@ -2,5 +2,16 @@ body {
   background-color: #def;
 }
 .file_listing{
-  style: 'width: 15%'
+  style: 'width: 15%';
+}
+#file_contents {
+  overflow: auto;
+  position: absolute;
+  width: 80%;
+  height: 90%;
+  top: 2px;
+  right: 10px;
+  background-color: white;
+  border: 1px solid #222;
+  padding: 7px;
 }
