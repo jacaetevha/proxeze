@@ -11,6 +11,18 @@ module Proxeze
     end
   end
   
+  # Create a proxy class for the given target class.
+  # If redefine_new_method is false, the target class' #new
+  # method will not be reimplemented.
+  #
+  # When the target class' #new method is reimplemented,
+  # all subsequent calls to #new on that class will return
+  # an instance of a proxied class (in the Proxeze namespace),
+  # thereby allowing seemless integration with existing
+  # classes.
+  # 
+  # Typically, only the Proxeze.for method should pass in
+  # redefine_new_method=false here.
   def self.proxy target_class, redefine_new_method = true
     cls_name = target_class.name.gsub '::', ''
     unless self.class_defined? cls_name
