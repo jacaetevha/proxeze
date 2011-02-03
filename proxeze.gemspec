@@ -23,6 +23,14 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "examples/sinatra/app.rb",
+    "examples/sinatra/config.ru",
+    "examples/sinatra/public/app.css",
+    "examples/sinatra/public/app.js",
+    "examples/sinatra/public/favicon.ico",
+    "examples/sinatra/public/nested_directory/file_inside_nested_directory.txt",
+    "examples/sinatra/views/index.haml",
+    "examples/sinatra/views/layout.haml",
     "lib/proxeze.rb",
     "proxeze.gemspec",
     "spec/definitions.rb",
@@ -32,16 +40,16 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/jacaetevha/proxeze}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = %q{1.5.0}
   s.summary = %q{A basic proxy/delegate framework for Ruby that will allow you to wrap any object with a proxy instance.}
   s.test_files = [
+    "examples/sinatra/app.rb",
     "spec/definitions.rb",
     "spec/proxeze_spec.rb",
     "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then
-    current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
