@@ -1,9 +1,14 @@
 source 'http://rubygems.org'
 
 group :development do
-  if RUBY_VERSION =~ /1\.9/
+  platforms :mri_19 do
     gem "ruby-debug19"
-  else
+  end
+  platforms :mri_18 do
+    gem 'ruby-debug'
+  end
+  platforms :jruby do
+    gem 'jruby-openssl'
     gem 'ruby-debug'
   end
   gem "rspec", "~> 2.4.0"
