@@ -33,10 +33,10 @@ Examples tell it best... In this example we have a tree structure of Categories.
   c6.categories << Category.new('8')
   
   # now we have a tree like this:
-  #           c1
-  #       ____||____
-  #       ||      ||
-  #       c2      c3
+  #          c1
+  #       ___||___
+  #       ||    ||
+  #       c2    c3
   #   ____||____
   #   ||  ||  ||
   #   c4  c5  c6
