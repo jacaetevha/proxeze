@@ -97,7 +97,7 @@ This allows you to proxy specific instances of your classes without proxying all
   a.__getobj__.class  # => A
 
 == Supported Ruby versions
-This code has been tested on 1.8.7, 1.9.2, and JRuby 1.5.6. I haven't bothered to test it on anything else, but I strongly suspect it will work just fine on anything greater than 1.8.6.
+This code has been tested on 1.8.7, 1.9.2, and JRuby 1.5.6. I haven't bothered to test it on anything else, but I strongly suspect it will work just fine on any Ruby implementation greater than 1.8.6.
 
 If you run into problems, feel free to open an issue at https://github.com/jacaetevha/proxeze/issues, or you can fix it yourself (see "Contributing to proxeze" below).
 
