@@ -9,6 +9,10 @@ module Proxeze
     def self.object_methods
       Object.methods
     end
+    
+    def self.class_methods_from target_class
+      target_class.methods
+    end
   else
     def self.class_defined? name
       const_defined? name
@@ -16,6 +20,10 @@ module Proxeze
 
     def self.object_methods
       Object.methods.collect{|e| e.to_sym}
+    end
+    
+    def self.class_methods_from target_class
+      target_class.methods.collect{|e| e.to_sym}
     end
   end
   
@@ -40,7 +48,7 @@ module Proxeze
       self.const_set cls_name, cls
 
       excluded_class_methods = object_methods + [:new, :public_api, :delegating_block] + options[:exclude_class_methods]
-      (target_class.methods - excluded_class_methods + options[:include_class_methods]).each do |method|
+      (class_methods_from(target_class) - excluded_class_methods + options[:include_class_methods]).each do |method|
         blk = class_delegating_block(method, target_class)
         (class << cls; self; end).instance_eval do
           define_method(method, &blk)
