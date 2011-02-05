@@ -24,11 +24,19 @@ module Proxeze
   # Typically, only the Proxeze.for method should pass in
   # redefine_new_method=false here.
   def self.proxy target_class, redefine_new_method = true
-    cls_name = target_class.name.gsub '::', ''
+    cls_name = target_class.name.gsub( '::', '' )
     unless self.class_defined? cls_name
       cls = DelegateClass target_class
       cls.send :include, self
       self.const_set cls_name, cls
+    end
+    
+    cls = self.const_get cls_name
+    (target_class.methods - Object.methods - [:new, :public_api, :delegating_block]).each do |method|
+      blk = class_delegating_block(method, target_class)
+      (class << cls; self; end).instance_eval do
+        define_method(method, &blk)
+      end
     end
 
     # we have to collect the methods as Strings here because
@@ -45,6 +53,16 @@ module Proxeze
     end
     
     self.const_get cls_name
+  end
+  
+  def self.class_delegating_block mid, target
+    lambda do |*args, &block|
+      begin
+        target.__send__(mid, *args, &block)
+      ensure
+        $@.delete_if {|t| /\A#{Regexp.quote(__FILE__)}:#{__LINE__-2}:/o =~ t} if $@
+      end
+    end
   end
   
   # create a proxy object for the given object

@@ -39,6 +39,10 @@ end
 class ClassForProxyingAfterAnInstanceWasProxied
 end
 
+class ClassWithClassMethods
+  def self.foo; 1; end
+end
+
 class Category
   attr_accessor :categories
   attr_reader   :name

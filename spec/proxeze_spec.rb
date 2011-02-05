@@ -148,4 +148,10 @@ describe Proxeze do
     proxy = Proxeze.for(1)
     proxy.should be_kind_of(Proxeze::Fixnum)
   end
+  
+  it "should proxy class methods also" do
+    proxy_class = Proxeze.proxy ClassWithClassMethods
+    Proxeze::ClassWithClassMethods.should respond_to(:foo)
+    Proxeze::ClassWithClassMethods.foo.should == ClassWithClassMethods.foo
+  end
 end
