@@ -4,7 +4,7 @@ A basic proxy/delegate framework for Ruby that will allow you to wrap any object
 
 == Details
 
-When Proxeze proxies an object, it creates a delegate class under its namespace (using Ruby's built-in Delegate class) that mirrors your class. It overrides your class' #new method so that when you create instances of your class, you get back the proxy object instead. In this way, you don't have to change the way you instantiate your objects, but you get the benefit of the proxy pattern.
+When Proxeze proxies an object, it creates a delegate class under its namespace (using Ruby's built-in Delegate class) that mirrors your class. It overrides your class' #new method so that when you create instances of your class, you get back the proxy object instead. In this way, you don't have to change the way you instantiate your objects, but you get the benefit of the proxy pattern. When proxying a class, Proxeze will also proxy most class methods (see Proxying Classes below).
 
 == How does that help me?
 
@@ -94,6 +94,29 @@ Of course, you can proxy the class and all subsequent instances even after you'v
   a = A.new
   a.class             # => Proxeze::A 
   a.__getobj__.class  # => A
+
+== Proxying Classes
+As we said before when you proxy a class, generally speaking, the #new method will be aliased so that all subsequent instances of the class will be proxied instances. What is the #new method? It's just an instance method of your class. What about all of the other instance methods of the class? In large part, they are available also, though there are mechanisms for making them unavailable. Consider this scenario:
+
+  class A
+    def self.foo; 1; end
+    def self.bar; 1; end
+  end
+  
+I can tell Proxeze to allow for the invocation of the #foo method, but not the #bar method like this:
+
+  Proxeze.proxy A, :exclude_class_methods => [:bar]
+  
+If you don't specify the :exclude_class_methods option, all class methods defined in your class will be available.
+
+The special case to this is that class methods defined in Object are not proxied, and there are a few class methods in the Delegate framework that are excluded. What if you've overridden a class method that is already defined in Object, like #hash? Well you can *include* that by sending the :include_class_methods option:
+
+  class A
+    def self.hash; 17; end
+  end
+  Proxeze.proxy A, :include_class_methods => [:hash]
+
+Note: I don't recommend overriding the #hash method on your class, this serves only as an example.
 
 == Supported Ruby versions
 This code has been tested on 1.8.7, 1.9.2, and JRuby 1.5.6. I haven't bothered to test it on anything else, but I strongly suspect it will work just fine on any Ruby implementation greater than 1.8.6.
