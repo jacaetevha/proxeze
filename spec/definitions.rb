@@ -43,6 +43,15 @@ class ClassWithClassMethods
   def self.foo; 1; end
 end
 
+class ClassWithClassMethods_SomeOfWhichWillBeExcluded
+  def self.foo; 1; end
+  def self.bar; 2; end
+end
+
+class ClassWithOverriddenObjectMethod
+  def self.hash; 17; end
+end
+
 class Category
   attr_accessor :categories
   attr_reader   :name

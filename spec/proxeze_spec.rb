@@ -150,8 +150,21 @@ describe Proxeze do
   end
   
   it "should proxy class methods also" do
-    proxy_class = Proxeze.proxy ClassWithClassMethods
+    Proxeze.proxy ClassWithClassMethods
     Proxeze::ClassWithClassMethods.should respond_to(:foo)
     Proxeze::ClassWithClassMethods.foo.should == ClassWithClassMethods.foo
+  end
+  
+  it "should not proxy class methods that are marked as excluded" do
+    Proxeze.proxy ClassWithClassMethods_SomeOfWhichWillBeExcluded, :exclude_class_methods => [:foo]
+    Proxeze::ClassWithClassMethods_SomeOfWhichWillBeExcluded.should_not respond_to(:foo)
+    Proxeze::ClassWithClassMethods_SomeOfWhichWillBeExcluded.should respond_to(:bar)
+    Proxeze::ClassWithClassMethods_SomeOfWhichWillBeExcluded.bar.should == ClassWithClassMethods_SomeOfWhichWillBeExcluded.bar
+  end
+
+  it "should proxy class methods also" do
+    Proxeze.proxy ClassWithOverriddenObjectMethod, :include_class_methods => [:hash]
+    Proxeze::ClassWithOverriddenObjectMethod.should respond_to(:hash)
+    Proxeze::ClassWithOverriddenObjectMethod.hash.should == 17
   end
 end
