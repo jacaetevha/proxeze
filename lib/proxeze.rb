@@ -35,10 +35,10 @@ module Proxeze
   # all subsequent calls to #new on that class will return
   # an instance of a proxied class (in the Proxeze namespace),
   # thereby allowing seemless integration with existing
-  # classes.
+  # classes and object creation.
   # 
-  # Typically, only the Proxeze.for method should pass in
-  # redefine_new_method=false here.
+  # Typically, only the Proxeze>>#for method should pass in
+  # :redefine_new_method => false here.
   def self.proxy target_class, opts = {}
     options = default_proxy_options.merge opts
     cls_name = target_class.name.gsub( '::', '' )
