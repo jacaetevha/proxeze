@@ -6,13 +6,18 @@ def Delegator.delegating_block mid
     begin
       method = mid.to_s
 
-      execute_call(@before_all, target, mid, args)
-      execute_call(@before, target, args)
+      after_all = self.class.hooks[:after_all][mid]
+      after = self.class.hooks[:after][mid]
+      before_all = self.class.hooks[:before_all][mid]
+      before = self.class.hooks[:before][mid]
+      
+      execute_call(before_all, target, mid, args)
+      execute_call(before, target, args)
 
       result = target.__send__(mid, *args, &block)
 
-      result_after = execute_call(@after, target, result, args)
-      result_after_all = execute_call(@after_all, target, result, mid, args)
+      result_after = execute_call(after, target, result, args)
+      result_after_all = execute_call(after_all, target, result, mid, args)
 
       return result_after_all if result_after_all
       return result_after if result_after
@@ -61,10 +66,15 @@ module Proxeze
   end
   
   module ClassMethods
+    def hooks
+      @hooks ||= Hash.new({})
+    end
+    
     # callback hooks
-    def before mid, &blk
-      @before ||= {}
-      @before[mid] = blk
+    [:before, :before_all, :after, :after_all].each do | hook |
+      define_method hook do | mid, &blk |
+        hooks[hook][mid] = blk
+      end
     end
   end
   
@@ -114,7 +124,7 @@ module Proxeze
     end
     cls = self.const_get cls_name
     unless callback_blk.nil?
-      cls.class_eval &callback_blk
+      cls.instance_eval &callback_blk
     end
     cls
   end

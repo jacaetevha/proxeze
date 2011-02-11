@@ -169,15 +169,16 @@ describe Proxeze do
   end
   
   it "should allow 'before' callbacks to run and do anything with arguments" do
+    baz_method_args = nil
     Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
       before :baz do |*args|
-        puts "here"
-        args.first * 20
+        baz_method_args = args.last
       end
     end
     instance = ClassWhereinWeMeetBeforeBlocks.new
     instance.foo.should == 1
     instance.bar.should == 2.0
-    instance.baz(2).should == 80.0
+    instance.baz(2).should == 4.0
+    baz_method_args.should == [2]
   end
 end
