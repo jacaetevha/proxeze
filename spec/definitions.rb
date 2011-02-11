@@ -52,6 +52,14 @@ class ClassWithOverriddenObjectMethod
   def self.hash; 17; end
 end
 
+class ClassWhereinWeMeetBeforeBlocks
+  def foo; 1; end
+  def bar; 2.0; end
+  def baz arg
+    (arg.to_f / foo) * bar
+  end
+end
+
 class Category
   attr_accessor :categories
   attr_reader   :name

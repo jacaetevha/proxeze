@@ -167,4 +167,17 @@ describe Proxeze do
     Proxeze::ClassWithOverriddenObjectMethod.should respond_to(:hash)
     Proxeze::ClassWithOverriddenObjectMethod.hash.should == 17
   end
+  
+  it "should allow 'before' callbacks to run and do anything with arguments" do
+    Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
+      before :baz do |*args|
+        puts "here"
+        args.first * 20
+      end
+    end
+    instance = ClassWhereinWeMeetBeforeBlocks.new
+    instance.foo.should == 1
+    instance.bar.should == 2.0
+    instance.baz(2).should == 80.0
+  end
 end
