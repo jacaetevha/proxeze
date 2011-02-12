@@ -13,60 +13,62 @@ Examples tell it best... In this example we have a tree structure of Categories.
   class Category
     attr_accessor :categories
     attr_reader   :name
-    
     def initialize name
       @name = name
       @categories = []
     end
   end
-  
-  # now every time we instantiate Category, we will get back a Proxeze::Category instance
-  Proxeze.proxy Category
-  
-  c1, c2, c3 = Category.new('1'), Category.new('2'), Category.new('3')
-  c1.categories = [c2, c3]
-  c2.categories << Category.new('4')
-  c2.categories << Category.new('5')
-  c6 = Category.new('6')
-  c2.categories << c6
-  c6.categories << Category.new('7')
-  c6.categories << Category.new('8')
-  
-  # now we have a tree like this:
-  #          c1
-  #       ___||___
-  #       ||    ||
-  #       c2    c3
-  #   ____||____
-  #   ||  ||  ||
-  #   c4  c5  c6
-  #        ___||___
-  #        ||    ||
-  #        c7    c8
-  
-Let's say we need to be able to hide c6 and its children at some point, to do that we can run the following code:
 
+  # now every time we instantiate Category, we
+  # will get back a Proxeze::Category instance
+  Proxeze.proxy Category
+
+  # Controls the visibility of the categories
   module Visibility
     def visible?
       @visible = true if @visible.nil?
       @visible
     end
-    
+
     def be_invisible!
       @visible = false
       categories.each {|e| e.be_invisible!}
       self
     end
-    
+
     def be_visible!
       @visible = true
       categories.each {|e| e.be_visible!}
       self
     end
+
+    Proxeze::Category.send :include, self
   end
-  Proxeze::Category.send :include, Visibility
-  
+
+  # instantiate Category objects as we normally would
+  c1            = Category.new('1')
+  c1.categories = [Category.new('2'), Category.new('3')]
+  c2            = c1.categories.first
+  c2.categories = [Category.new('4'), Category.new('5'), Category.new('6')]
+  c6            = c2.categories.last
+  c6.categories = [Category.new('7'), Category.new('8')]
+
   c6.be_invisible!
+
+  # before we hide c6 and its children   |    after hiding c6
+  # we have a tree like this:            |    our tree becomes:
+  # ------------------------------------ + --------------------
+  #                c1                    +            c1
+  #             ___||___                 +         ___||___
+  #             ||    ||                 +         ||    ||
+  #             c2    c3                 +         c2    c3
+  #         ____||____                   +     ____||____
+  #         ||  ||  ||                   +     ||      ||
+  #         c4  c5  c6                   +     c4      c5
+  #              ___||__                 +
+  #              ||    |                 +
+  #              c7    c8                +
+  #                                      |
   
 So, we've added behavior to the proxied objects, but not the Category objects themselves.
 
