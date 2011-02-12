@@ -10,7 +10,7 @@ def Delegator.delegating_block mid
       after = self.class.hooks[:after][mid]
       before_all = self.class.hooks[:before_all][mid]
       before = self.class.hooks[:before][mid]
-      
+
       execute_call(before_all, target, mid, args)
       execute_call(before, target, args)
 
@@ -70,12 +70,10 @@ module Proxeze
       @hooks ||= Hash.new({})
     end
     
-    # callback hooks
-    [:before, :before_all, :after, :after_all].each do | hook |
-      define_method hook do | mid, &blk |
-        hooks[hook][mid] = blk
-      end
-    end
+    def after mid, &blk; self.hooks[:after][mid] = blk; end
+    def after_all mid, &blk; self.hooks[:after_all][mid] = blk; end
+    def before mid, &blk; self.hooks[:before][mid] = blk; end
+    def before_all mid, &blk; self.hooks[:before_all][mid] = blk; end
   end
   
   # Create a proxy class for the given target class.
