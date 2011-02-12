@@ -4,7 +4,7 @@ A basic proxy/delegate framework for Ruby that will allow you to wrap any object
 
 == Details
 
-When Proxeze proxies an object, it creates a delegate class under its namespace (using Ruby's built-in Delegate class) that mirrors your class. It overrides your class' #new method so that when you create instances of your class, you get back the proxy object instead. In this way, you don't have to change the way you instantiate your objects, but you get the benefit of the proxy pattern. When proxying a class, Proxeze will also proxy most class methods (see Proxying Classes below).
+When Proxeze proxies an object it creates a delegate class under its namespace (using Ruby's built-in Delegate class) that mirrors your class. It overrides your class' #new method so that when you create instances of your class you get back the proxy object instead. In this way, you don't have to change the way you instantiate your objects, but you get the benefit of the proxy pattern. When proxying a class Proxeze will also proxy most class methods (see Proxying Classes below).
 
 == How does that help me?
 
