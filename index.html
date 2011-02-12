@@ -10,9 +10,21 @@
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-  		background-color: #fff;
 		  font-family: "Helvetica,Arial,FreeSans";
-  		color: #000000;
+  		color: #222;
+    }
+    .gradientV{
+      /* a la http://www.puremango.co.uk/2010/04/css-gradient-background */
+      /* fallback (Opera) */
+      background: #000000;
+      /* Mozilla: */
+      background: -moz-linear-gradient(top, #fff, #888);
+      /* Chrome, Safari:*/
+      background: -webkit-gradient(linear,
+                  left top, left bottom, from(#fff), to(#888));
+      /* MSIE */
+      filter: progid:DXImageTransform.Microsoft.Gradient(
+                  StartColorStr='#fff', EndColorStr='#888', GradientType=0);
     }
     #container {
       margin: 0 auto;
@@ -33,7 +45,7 @@
 	
 </head>
 
-<body>
+<body class='gradientV'>
   <a href="http://github.com/jacaetevha/proxeze"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
 
   <div id="container">
