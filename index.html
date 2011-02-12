@@ -10,7 +10,7 @@
 	<style type="text/css">
 		body {
   		margin-top: 1.0em;
-		  font-family: "Helvetica,Arial,FreeSans";
+		  font-family: Lucida Sans Unicode, Lucida Grande, Verdana, Geneva, sans-serif;
 		  background-color: #000;
   		color: #ddd;
     }
@@ -27,7 +27,7 @@
       filter: progid:DXImageTransform.Microsoft.Gradient(
                   StartColorStr='#fff', EndColorStr='#888', GradientType=0);
     }
-    #container {
+    #maintext {
       margin: 0 auto;
       width: 700px;
     }
@@ -39,17 +39,28 @@
     a { color: #eb7600; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
     .download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
+		pre { background-color: #ddd; color: #222; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+    /* this adds left padding to the line elements created by SyntaxHighlighter */
+    .line {padding-left: 15px; line-height: 1em;}
 	</style>
-	
+<!--  
+  <link rel='stylesheet' type='text/css' src='stylesheets/shCore.css'/>
+  <link rel='stylesheet' type='text/css' src='stylesheets/shThemeDefault.css'/>
+  <script type='text/javascript' src='javascripts/shCore.js'></script>
+  <script type='text/javascript' src='javascripts/shBrushRuby.js'></script>
+-->
+    <link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeRDark.css" rel="stylesheet" type="text/css" />
+    <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
+    <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js" type="text/javascript"></script>
+    <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushRuby.js" type="text/javascript"></script>
 </head>
 
 <body class='cgradientV'>
   <a href="http://github.com/jacaetevha/proxeze"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://assets0.github.com/img/4c7dc970b89fd04b81c8e221ba88ff99a06c6b61?repo=&url=http%3A%2F%2Fs3.amazonaws.com%2Fgithub%2Fribbons%2Fforkme_right_white_ffffff.png&path=" alt="Fork me on GitHub"></a>
 
-  <div id="container">
+  <div id="maintext">
 
     <div class="download">
       <a href="http://github.com/jacaetevha/proxeze/zipball/master">
@@ -66,13 +77,84 @@
     </div>
 
     <p>When Proxeze proxies an object it creates a delegate class under its namespace (using Ruby’s built-in Delegate class) that mirrors your class. It overrides your class’ #new method so that when you create instances of your class you get back the proxy object instead. In this way, you don’t have to change the way you instantiate your objects, but you get the benefit of the proxy pattern. When proxying a class, Proxeze will also proxy most class methods. See <a href="http://github.com/jacaetevha/proxeze">my GitHub page</a> for more details.</p>
+    <h2>Install</h2>
+    <p>gem install proxeze</p>
+
 <h2>Dependencies</h2>
-<h4>Production</h4>
-none
-<h4>Development</h4>
-rspec, jeweler, bundler, rcov
-<h2>Install</h2>
-<p>gem install proxeze</p>
+The only dependencies proxeze has are for development:
+<ul>
+  <li>rspec</li>
+  <li>jeweler</li>
+  <li>bundler</li>
+  <li>rcov</li>
+</ul>
+
+<h2>How will proxeze help me?</h2>
+<p>
+Examples tell it best... In this example we have a tree structure of Categories. At some point during the execution of our program we want to hide certain categories in that tree, without adding extra behavior to Category, and without changing the state of the Category instances themselves. Enter the Proxy.
+</p>
+<pre id='example' class='brush: rb'>
+  class Category
+    attr_accessor :categories
+    attr_reader   :name
+    def initialize name
+      @name = name
+      @categories = []
+    end
+  end
+
+  # now every time we instantiate Category, we
+  # will get back a Proxeze::Category instance
+  Proxeze.proxy Category
+
+  # Controls the visibility of the categories
+  module Visibility
+    def visible?
+      @visible = true if @visible.nil?
+      @visible
+    end
+
+    def be_invisible!
+      @visible = false
+      categories.each {|e| e.be_invisible!}
+      self
+    end
+
+    def be_visible!
+      @visible = true
+      categories.each {|e| e.be_visible!}
+      self
+    end
+
+    Proxeze::Category.send :include, self
+  end
+
+  # instantiate Category objects as we normally would
+  c1            = Category.new('1')
+  c1.categories = [Category.new('2'), Category.new('3')]
+  c2            = c1.categories.first
+  c2.categories = [Category.new('4'), Category.new('5'), Category.new('6')]
+  c6            = c2.categories.last
+  c6.categories = [Category.new('7'), Category.new('8')]
+
+  c6.be_invisible!
+
+  # before we hide c6 and its children   |    after hiding c6
+  # we have a tree like this:            |    our tree becomes:
+  # ------------------------------------ + --------------------
+  #                c1                    +            c1
+  #             ___||___                 +         ___||___
+  #             ||    ||                 +         ||    ||
+  #             c2    c3                 +         c2    c3
+  #         ____||____                   +     ____||____
+  #         ||  ||  ||                   +     ||      ||
+  #         c4  c5  c6                   +     c4      c5
+  #              ___||__                 +
+  #              ||    |                 +
+  #              c7    c8                +
+  #                                      |
+</pre>
+
 <h2>License</h2>
 <p>Copyright (c) 2011 Jason Rogers
 
@@ -107,6 +189,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
   </div>
 
+  <script type='text/javascript'>
+    SyntaxHighlighter.defaults['smart-tabs'] = true;
+    SyntaxHighlighter.defaults['gutter']     = false;
+    SyntaxHighlighter.defaults['toolbar']    = false;
+    SyntaxHighlighter.all();
+  </script>
   
 </body>
 </html>
