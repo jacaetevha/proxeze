@@ -120,6 +120,9 @@ The special case to this is that class methods defined in Object are not proxied
 
 Note: I don't recommend overriding the #hash method on your class, this serves only as an example.
 
+# Method Interceptions
+Proxeze has the ability to surround instance method calls with _before_ and _after_ callbacks. This support was lifted straight from [https://github.com/tulios/proxy_machine|proxy_machine]
+
 == Supported Ruby versions
 This code has been tested on 1.8.7, 1.9.2, and JRuby 1.5.6. I haven't bothered to test it on anything else, but I strongly suspect it will work just fine on any Ruby implementation greater than 1.8.6.
 
