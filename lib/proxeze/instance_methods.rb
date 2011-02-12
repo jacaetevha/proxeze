@@ -9,6 +9,22 @@ module Proxeze
     def new_proxy
       Proxeze.for __getobj__
     end
+    
+    def after mid, &blk
+      self.class.after mid, &blk
+    end
+
+    def after_all &blk
+      self.class.after_all &blk
+    end
+
+    def before mid, &blk
+      self.class.before mid, &blk
+    end
+
+    def before_all &blk
+      self.class.before_all &blk
+    end
 
     private               
       def execute_call container, *args

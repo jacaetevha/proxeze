@@ -237,4 +237,19 @@ describe Proxeze do
     callbacks[:bar].should == 2.0
     callbacks[:baz].should == 4.0
   end
+  
+  it "should be able to add hooks to a proxied instance" do
+    a = Proxeze.for [1, 3, 2, 5, 4, 6]
+    a.before :reverse do |*args|
+      target, mid, arguments = *args
+      target << target.length
+    end
+    a.reverse.should == [6, 6, 4, 5, 2, 3, 1]
+
+    a.after :sort do |*args|
+      target, result, arguments = *args
+      result.uniq
+    end
+    a.sort.should == [1, 2, 3, 4, 5, 6]
+  end
 end
