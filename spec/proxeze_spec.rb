@@ -168,7 +168,7 @@ describe Proxeze do
     Proxeze::ClassWithOverriddenObjectMethod.hash.should == 17
   end
   
-  it "should allow 'before' callbacks to run and do anything with arguments" do
+  it "should run 'before' callbacks" do
     baz_method_args = nil
     Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
       before :baz do |*args|
@@ -180,5 +180,61 @@ describe Proxeze do
     instance.bar.should == 2.0
     instance.baz(2).should == 4.0
     baz_method_args.should == [2]
+  end
+
+  it "should run 'before_all' callbacks" do
+    callbacks = {}
+    Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
+      before_all do |*args|
+        target, mid, arguments = *args
+        callbacks[mid] = arguments
+      end
+    end
+    instance = ClassWhereinWeMeetBeforeBlocks.new
+    instance.foo.should == 1
+    instance.bar.should == 2.0
+    instance.baz(2).should == 4.0
+    
+    callbacks.keys.sort.should == [:bar, :baz, :foo]
+    callbacks[:foo].should == []
+    callbacks[:bar].should == []
+    callbacks[:baz].should == [2]
+  end
+
+  it "should run 'after' callbacks" do
+    callbacks = {}
+    Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
+      after :foo do |*args|
+        callbacks[:foo] = args.last
+        args[-2]
+      end
+    end
+    instance = ClassWhereinWeMeetBeforeBlocks.new
+    instance.foo.should == 1
+    instance.bar.should == 2.0
+    instance.baz(2).should == 4.0
+    
+    callbacks.keys.sort.should == [:foo]
+    callbacks[:foo].should == []
+  end
+
+  it "should run 'after_all' callbacks" do
+    callbacks = {}
+    Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
+      after_all do |*args|
+        target, result, mid, arguments = *args
+        callbacks[mid] = result
+        result * 2
+      end
+    end
+    instance = ClassWhereinWeMeetBeforeBlocks.new
+    instance.foo.should == 2
+    instance.bar.should == 4.0
+    instance.baz(2).should == 8.0
+    
+    callbacks.keys.sort.should == [:bar, :baz, :foo]
+    callbacks[:foo].should == 1
+    callbacks[:bar].should == 2.0
+    callbacks[:baz].should == 4.0
   end
 end
