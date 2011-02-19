@@ -93,7 +93,7 @@ The only dependencies proxeze has are for development:
 <p>
 Examples tell it best... In this example we have a tree structure of Categories. At some point during the execution of our program we want to hide certain categories in that tree, without adding extra behavior to Category, and without changing the state of the Category instances themselves. Enter the Proxy.
 </p>
-<pre id='example' class='brush: rb'>
+<pre id='simple_example' class='brush: rb'>
   class Category
     attr_accessor :categories
     attr_reader   :name
@@ -153,6 +153,71 @@ Examples tell it best... In this example we have a tree structure of Categories.
   #              ||    |                 +
   #              c7    c8                +
   #                                      |
+</pre>
+
+<p>
+In this example, we are adding a method interception to the #reverse method on our array that will be called <i>before</i> the #reverse is called. In it, we will append a value to the array.
+</p>
+<pre id='simple_before' class='brush: rb'>
+  p = Proxeze.for [0, 1, 2, 3] do
+    before :reverse do |obj, args|
+      obj << obj.length
+    end
+  end
+
+  p.reverse # => [4, 3, 2, 1, 0]
+</pre>
+
+<p>
+In this example, we are adding a method interception to the #reverse method on our array that will be called <i>after</i> the #reverse is called. In it, we will append a value to the array.
+</p>
+<pre id='simple_after' class='brush: rb'>
+  p = Proxeze.for [0, 1, 2, 3] do
+    after :reverse do |obj, result, args|
+      obj << obj.length
+    end
+  end
+
+  p.reverse # => [4, 3, 2, 1, 0]
+</pre>
+
+<p>
+In this example, we use a class for the callback routine, which is instantiated and called before and after all methods.
+</p>
+<pre id='class_around_all_methods' class='brush: rb'>
+  class MyClass
+    attr_accessor :foo
+  end
+  
+  class DebugLogInterceptor
+    def self.logger
+      @logger ||= Logger.new
+      @logger
+    end
+    
+    def initialize object, result = nil, method = nil, args = nil
+      @object = object
+      @result = result
+      @method = method
+      @args = args
+    end
+    
+    def call
+      self.class.logger.debug log_message
+    end
+    
+    def log_message
+      "#{@method} on #{@obj.inspect} with args[#{@args.inspect}], result is [#{@result}]"
+    end
+  end
+
+  p = Proxeze.proxy MyClass do
+    after_all  DebugLogInterceptor
+    before_all DebugLogInterceptor
+  end
+
+  o = MyClass.new
+  o.foo = 2 # results in a log statement
 </pre>
 
 <h2>License</h2>
