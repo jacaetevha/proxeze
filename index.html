@@ -191,11 +191,12 @@ In this example, we use a class for the callback routine, which is instantiated 
   
   class DebugLogInterceptor
     def self.logger
-      @logger ||= Logger.new
+      @logger ||= Logger.new(STDOUT)
       @logger
     end
     
-    def initialize object, result = nil, method = nil, args = nil
+    def initialize callback_type, object, result = nil, method = nil, args = nil
+      @callback_type = callback_type
       @object = object
       @result = result
       @method = method
@@ -207,7 +208,7 @@ In this example, we use a class for the callback routine, which is instantiated 
     end
     
     def log_message
-      "#{@method} on #{@obj.inspect} with args[#{@args.inspect}], result is [#{@result}]"
+      "#{@callback_type}: #{@method} on #{@object.inspect} with args[#{@args.inspect}], result is [#{@result.inspect}]"
     end
   end
 
