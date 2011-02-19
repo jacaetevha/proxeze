@@ -239,17 +239,38 @@ describe Proxeze do
   end
   
   it "should be able to add hooks to a proxied instance" do
-    a = Proxeze.for [1, 3, 2, 5, 4, 6]
-    a.before :reverse do |*args|
-      target, mid, arguments = *args
-      target << target.length
+    a = Proxeze.for [0, 1, 3, 2, 5, 4] do
+      before :reverse do |*args|
+        target, mid, arguments = *args
+        target << target.length
+      end
     end
-    a.reverse.should == [6, 6, 4, 5, 2, 3, 1]
+    a.reverse.should == [6, 4, 5, 2, 3, 1, 0]
 
     a.after :sort do |*args|
       target, result, arguments = *args
-      result.uniq
+      result << result.length
     end
-    a.sort.should == [1, 2, 3, 4, 5, 6]
+    a.sort.should == [0, 1, 2, 3, 4, 5, 6, 7]
+    
+    # make sure that other instances of Arrays don't get the
+    # behavior added to the proxied instances above
+    [0, 1, 3, 2, 5, 4].sort.reverse.should == [5, 4, 3, 2, 1, 0]
+    [1, 3, 2].reverse.should == [2, 3, 1]
+    Proxeze.for([1, 3, 2]).reverse.should == [2, 3, 1]
+  end
+  
+  it "should accept a class for the callbacks" do
+    class SortPerformer
+      def initialize object, result = nil, method = nil, args = nil
+        @object = object; @result = result; @method = method, @args = args
+      end
+
+      def call; @object.sort! end
+    end
+    p = Proxeze.for [1, 2, 3] do
+      after :reverse, SortPerformer
+    end
+    p.reverse.should == [1, 2, 3]
   end
 end

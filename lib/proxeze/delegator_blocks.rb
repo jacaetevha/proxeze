@@ -7,9 +7,9 @@ def Delegator.delegating_block mid
       method = mid.to_s
 
       after_all = self.class.hooks[:after_all]
-      after = self.class.hooks[:after][mid]
+      after = self.class.hooks[:after] ? self.class.hooks[:after][mid] : nil
       before_all = self.class.hooks[:before_all]
-      before = self.class.hooks[:before][mid]
+      before = self.class.hooks[:before] ? self.class.hooks[:before][mid] : nil
 
       execute_call(before_all, target, mid, args)
       execute_call(before, target, args)

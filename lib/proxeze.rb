@@ -43,15 +43,12 @@ module Proxeze
   # :redefine_new_method => false here.
   def self.proxy target_class, opts = {}, &callback_blk
     options = default_proxy_options.merge opts
-    cls_name = target_class.name.gsub( '::', '' )
+    cls_name = class_name_for(target_class)
     unless self.class_defined? cls_name
       cls = DelegateClass target_class
-      cls.send :include, InstanceMethods
-      cls.send :extend, ClassMethods
-      # (class << cls; self; end).instance_eval do
-      #   extend ClassMethods
-      # end
-      # 
+      cls.send :include, Copying
+      cls.send :include, Hooks
+      cls.send :extend, ClassHooks
       self.const_set cls_name, cls
       
       excluded_class_methods = object_methods + [:new, :public_api, :delegating_block] + options[:exclude_class_methods]
@@ -89,7 +86,22 @@ module Proxeze
   end
   
   # create a proxy object for the given object
-  def self.for object
-    self.proxy( object.class, :redefine_new_method => false ).new( object )
+  def self.for object, &callback_blk
+    proxy = self.proxy( object.class, :redefine_new_method => false ).new( object )
+    proxy.class.hooks.clear
+    cls = (class << proxy; self; end)
+    cls.send :include, Copying unless cls.ancestors.include?(Copying)
+    cls.send :include, Hooks unless cls.ancestors.include?(Hooks)
+    cls.send :extend, ClassHooks unless cls.ancestors.include?(ClassHooks)
+    unless callback_blk.nil?
+      proxy.instance_eval &callback_blk
+    end
+    proxy
   end
+  
+  private
+    def self.class_name_for target_class
+      name = target_class.name ? target_class.name : "#{target_class}"
+      name.gsub( 'Class:', '' ).gsub( /[:<>#]/, '' )
+    end
 end

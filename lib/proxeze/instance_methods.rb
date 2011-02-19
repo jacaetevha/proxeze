@@ -1,25 +1,30 @@
 module Proxeze
-  module InstanceMethods
+  module Copying
     # create a new proxy around a clone of my delegate object
     def clone
-      Proxeze.for __getobj__.clone
+      hooks = self.class.hooks
+      clone = Proxeze.for __getobj__.clone
+      clone.class.hooks.merge hooks
+      clone
     end
 
     # create a new proxy object for my delegate
     def new_proxy
       Proxeze.for __getobj__
     end
-    
-    def after mid, &blk
-      self.class.after mid, &blk
+  end
+
+  module Hooks
+    def after mid, *args, &blk
+      self.class.after mid, *args, &blk
     end
 
     def after_all &blk
       self.class.after_all &blk
     end
 
-    def before mid, &blk
-      self.class.before mid, &blk
+    def before mid, *args, &blk
+      self.class.before mid, *args, &blk
     end
 
     def before_all &blk
@@ -30,7 +35,7 @@ module Proxeze
       def execute_call container, *args
         executor = get_executor(container)
         result = nil
-        if executor.class == Array
+        if executor.respond_to? :each
           executor.each do |e|
             result = e.send :call, *args if proc?(e)
             result = e.send(:new, *args).call if class?(e) 
