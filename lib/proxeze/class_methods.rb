@@ -14,8 +14,8 @@ module Proxeze
     # The after_all hook will receive 4 arguments:
     # target, result, method id, and any arguments
     # to the method that was called.
-    def after_all &blk
-      insert_into_callback_chain :hook => :after_all, :blk => blk
+    def after_all *args, &blk
+      insert_into_callback_chain :hook => :after_all, :blk => blk, :args => args
     end
 
     # The before hook will receive 2 arguments:
@@ -28,8 +28,8 @@ module Proxeze
     # The before_all hook will receive 3 arguments:
     # target, method id, and any arguments to the
     # method that is being called.
-    def before_all &blk
-      insert_into_callback_chain :hook => :before_all, :blk => blk
+    def before_all *args, &blk
+      insert_into_callback_chain :hook => :before_all, :blk => blk, :args => args
     end
     
     private

@@ -12,12 +12,12 @@ def Delegator.delegating_block mid
       before_all = self.class.hooks[:before_all]
       before = self.class.hooks[:before] ? self.class.hooks[:before][mid] : nil
 
-      execute_call(before_all, target, mid, args)
-      execute_call(before, target, args)
+      execute_call(before_all, :before_all, target, args, mid)
+      execute_call(before, :before, target, args, mid)
 
       result = target.__send__(mid, *args, &block)
-      result_after = execute_call(after, target, result, args)
-      result_after_all = execute_call(after_all, target, result, mid, args)
+      result_after = execute_call(after, :after, target, args, mid, result)
+      result_after_all = execute_call(after_all, :after_all, target, args, mid, result)
       return result_after_all if result_after_all
       return result_after if result_after
       result

@@ -177,8 +177,8 @@ describe Proxeze do
   it "should run 'before' callbacks" do
     baz_method_args = nil
     Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
-      before :baz do |*args|
-        baz_method_args = args.last
+      before :baz do |target, args, mid, result|
+        baz_method_args = args
       end
     end
     instance = ClassWhereinWeMeetBeforeBlocks.new
@@ -191,9 +191,8 @@ describe Proxeze do
   it "should run 'before_all' callbacks" do
     callbacks = {}
     Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
-      before_all do |*args|
-        target, mid, arguments = *args
-        callbacks[mid] = arguments
+      before_all do |target, args, mid, result|
+        callbacks[mid] = args
       end
     end
     instance = ClassWhereinWeMeetBeforeBlocks.new
@@ -210,9 +209,9 @@ describe Proxeze do
   it "should run 'after' callbacks" do
     callbacks = {}
     Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
-      after :foo do |*args|
-        callbacks[:foo] = args.last
-        args[-2]
+      after :foo do |target, args, mid, result|
+        callbacks[mid] = args
+        result
       end
     end
     instance = ClassWhereinWeMeetBeforeBlocks.new
@@ -227,8 +226,7 @@ describe Proxeze do
   it "should run 'after_all' callbacks" do
     callbacks = {}
     Proxeze.proxy( ClassWhereinWeMeetBeforeBlocks ) do
-      after_all do |*args|
-        target, result, mid, arguments = *args
+      after_all do |target, arguments, mid, result|
         callbacks[mid] = result
         result * 2
       end
@@ -246,14 +244,13 @@ describe Proxeze do
   
   it "should be able to add hooks to a proxied instance" do
     a = Proxeze.for [0, 1, 3, 2, 5, 4] do
-      before :reverse do |target, mid, arguments|
+      before :reverse do |target, arguments, mid|
         target << target.length
       end
     end
     a.reverse.should == [6, 4, 5, 2, 3, 1, 0]
 
-    a.after :sort do |*args|
-      target, result, arguments = *args
+    a.after :sort do |target, arguments, mid, result|
       result << result.length
     end
     a.sort.should == [0, 1, 2, 3, 4, 5, 6, 7]
@@ -267,7 +264,7 @@ describe Proxeze do
   
   it "should accept a class for the callbacks" do
     class SortPerformer
-      def initialize object, result = nil, method = nil, args = nil
+      def initialize callback_type, object, args = nil, method = nil, result = nil
         @object = object; @result = result; @method = method, @args = args
       end
 
@@ -277,5 +274,47 @@ describe Proxeze do
       after :reverse, SortPerformer
     end
     p.reverse.should == [1, 2, 3]
+  end
+  
+  it "should accept a class for before_all and after_all callbacks" do
+    class MyClass
+      attr_accessor :foo
+      def inspect
+        'an instance of MyClass'
+      end
+    end
+
+    class DebugLogInterceptor
+      def self.logger
+        @logger ||= []
+        @logger
+      end
+      
+      def initialize callback_type, object, args = nil, method = nil, result = nil
+        @callback_type = callback_type
+        @object = object
+        @result = result
+        @method = method
+        @args = args
+      end
+      
+      def call
+        self.class.logger << log_message
+      end
+
+      def log_message
+        "#{@callback_type}: #{@method} on #{@object.inspect} with args[#{@args.inspect}], result is [#{@result}]"
+      end
+    end
+
+    Proxeze.proxy MyClass do
+      after_all  DebugLogInterceptor
+      before_all DebugLogInterceptor
+    end
+
+    o = MyClass.new
+    o.foo = 2
+    DebugLogInterceptor.logger.should == ["before_all: foo= on an instance of MyClass with args[[2]], result is []", 
+                                          "after_all: foo= on an instance of MyClass with args[[2]], result is [2]"]
   end
 end

@@ -19,16 +19,16 @@ module Proxeze
       self.class.after mid, *args, &blk
     end
 
-    def after_all &blk
-      self.class.after_all &blk
+    def after_all *args, &blk
+      self.class.after_all *args, &blk
     end
 
     def before mid, *args, &blk
       self.class.before mid, *args, &blk
     end
 
-    def before_all &blk
-      self.class.before_all &blk
+    def before_all *args, &blk
+      self.class.before_all *args, &blk
     end
 
     private               
@@ -37,13 +37,13 @@ module Proxeze
         result = nil
         if executor.respond_to? :each
           executor.each do |e|
-            result = e.send :call, *args if proc?(e)
+            result = e.send :call, *args[1..-1] if proc?(e)
             result = e.send(:new, *args).call if class?(e) 
           end
           return result
         end                    
 
-        return executor.send :call, *args if proc?(executor)
+        return executor.send :call, *args[1..-1] if proc?(executor)
         return executor.send(:new, *args).call if class?(executor) 
       end
 
