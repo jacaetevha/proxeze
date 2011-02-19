@@ -121,9 +121,9 @@ The special case to this is that class methods defined in Object are not proxied
 Note: I don't recommend overriding the #hash method on your class, this serves only as an example.
 
 == Method Interceptions
-Proxeze has the ability to surround instance method calls with _before_ and _after_ callbacks. This support was lifted straight from proxy_machine (https://github.com/tulios/proxy_machine). Unlike proxy_machine, callbacks receive the set of parameters: a reference
-to the object, the arguments passed, the symbol of the called method, and the result of execution (this result could be nil and 
-necessarily will be nil in _before_ and _before\_all_ interceptions).
+Proxeze has the ability to surround instance method calls with _before_ and _after_ callbacks. This support was lifted straight from proxy_machine (https://github.com/tulios/proxy_machine). Unlike proxy_machine, all callbacks receive the same set of parameters:
+a reference to the object, the arguments passed, the symbol of the called method, and the result of execution (this result could be nil,
+and necessarily *will* be nil in _before_ and _before_all_ interceptions).
 
 === Defining callbacks at the method level
                      
@@ -183,9 +183,9 @@ necessarily will be nil in _before_ and _before\_all_ interceptions).
 
 === Registering a class to perform a callback
                        
-The constructor will receive the type of the callback (one of _#before_, _#before\_all_, _#after_, or _#after\_all_),
-the object, the arguments passed to the method, the method called, and a result (which is populated for _#after_ and 
-_#after\_all_ hooks). You need to define a _#call_ method. Proxeze will create a new instance of the class every time
+The constructor will receive the type of the callback (one of #before, #before_all, #after, or #after_all),
+the object, the arguments passed to the method, the method called, and a result (which is populated for #after and 
+#after_all hooks). You need to define a #call method. Proxeze will create a new instance of the class every time
 it needs to use it.
 
   # Example of class
