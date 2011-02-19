@@ -123,6 +123,89 @@ Note: I don't recommend overriding the #hash method on your class, this serves o
 == Method Interceptions
 Proxeze has the ability to surround instance method calls with _before_ and _after_ callbacks. This support was lifted straight from proxy_machine (https://github.com/tulios/proxy_machine).
 
+=== Defining callbacks at the method level
+                     
+==== before
+
+  p = Proxeze.for [0, 1, 2, 3] do
+    before :reverse do |obj, args|
+      obj << obj.length
+    end
+  end  
+  
+  p.reverse # => [4, 3, 2, 1, 0]
+
+==== after
+               
+  p = Proxeze.for [4, 2, 3] do
+    after :reverse do |obj, result, args|
+      result.sort
+    end
+  end
+
+  p.reverse => [4, 3, 2] # We reordered the list
+                  
+You will always receive the arguments passed to the original method.               
+               
+=== Defining callbacks for all method calls
+
+==== before_all
+This callback will receive a reference of the object, the symbol of the called method and the
+original arguments passed.
+
+  logged = nil
+  p = Proxeze.for [0, 1, 2, 3] do
+    before_all do |obj, method, args|
+      logged = "before #{method} on #{obj.inspect} with args[#{args.inspect}]"
+    end
+  end
+  p.reverse # => [3, 2, 1, 0]
+  logged    # => before reverse on [0, 1, 2, 3] with args[[]]
+  
+  p.size => 4
+  logged    # => before size on [0, 1, 2, 3] with args[[]]
+  
+  p.unshift 9 # => [9, 0, 1, 2, 3]
+  logged      # => before unshift on [0, 1, 2, 3] with args[[9]]
+
+==== after_all
+This callback will receive a reference of the object, the result of execution (this result could be nil), 
+the symbol of the called method and the arguments passed.
+
+  logged = nil
+  p = Proxeze.for [1, 2, 3] do
+    after_all do |obj, result, method, args|
+      logged = "after #{method} on #{obj.inspect} with args[#{args.inspect}], result is now [#{result}]"
+      result
+    end
+  end
+  p.reverse # => [3, 2, 1]
+  logged    # => after reverse on [1, 2, 3] with args[[]], result is now [[3, 2, 1]]
+               
+  p.size    # => 3
+  logged    # => after size on [1, 2, 3] with args[[]], result is now [3]
+
+=== Registering a class to perform a callback
+                       
+The constructor will receive the object, in case of an :after it will receive the result too.
+You need to have a :call method. Proxeze will create a new instance of the class every time it
+needs to use it. You could use this feature with the before_all and after_all too.
+
+  # Example of class
+  class SortPerformer
+    def initialize object, result = nil, method = nil, args = nil
+      @object = object; @result = result; @method = method, @args = args
+    end
+                             
+    def call; @object.sort! end
+  end
+  
+  p = Proxeze.for [1, 4, 2, 3] do
+    after :reverse, SortPerformer
+  end
+  
+  p.reverse => [1, 2, 3, 4]
+
 == Supported Ruby versions
 This code has been tested on 1.8.7, 1.9.2, and JRuby 1.5.6. I haven't bothered to test it on anything else, but I strongly suspect it will work just fine on any Ruby implementation greater than 1.8.6.
 

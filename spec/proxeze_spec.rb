@@ -246,8 +246,7 @@ describe Proxeze do
   
   it "should be able to add hooks to a proxied instance" do
     a = Proxeze.for [0, 1, 3, 2, 5, 4] do
-      before :reverse do |*args|
-        target, mid, arguments = *args
+      before :reverse do |target, mid, arguments|
         target << target.length
       end
     end
