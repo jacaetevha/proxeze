@@ -183,8 +183,8 @@ and necessarily *will* be nil in _before_ and _before_all_ interceptions).
 
 === Registering a class to perform a callback
                        
-The initializer will receive an extra parameter, the type of the callback (one of #before, #before_all, #after, or #after_all),
-in addition to the object, the arguments passed to the method, the method called, and a result (which is populated for #after and 
+The initializer will receive an extra parameter, the type of the callback (one of #before, #before_all, #after, or #after_all).
+In addition it also receives the object, the arguments passed to the method, the method called, and a result (which is populated for #after and 
 #after_all hooks). You need to define a #call method. Proxeze will create a new instance of the class every time it needs to use it.
 
   # Example of class
