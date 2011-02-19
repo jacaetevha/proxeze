@@ -13,7 +13,7 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "proxeze"
-  gem.homepage = "http://github.com/jacaetevha/proxeze"
+  gem.homepage = "http://jacaetevha.github.com/proxeze/"
   gem.license = "MIT"
   gem.summary = %Q{A basic proxy/delegate framework for Ruby that will allow you to wrap any object with a proxy instance.}
   gem.description = %Q{A basic proxy/delegate framework for Ruby that will allow you to wrap any object with a proxy instance. For more information about the Proxy and Delegate patterns, check out http://en.wikipedia.org/wiki/Proxy_pattern and http://en.wikipedia.org/wiki/Delegation_pattern respectively.}
