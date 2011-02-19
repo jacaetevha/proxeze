@@ -1,6 +1,12 @@
 require File.dirname(__FILE__) + '/spec_helper'
 require 'definitions'
 
+class Symbol
+  def <=> other
+    self.to_s <=> other.to_s
+  end
+end
+
 shared_examples_for "all wrapped classes" do
   it "should wrap the class>>#new method so we get an instance of the proxy instead" do
     Proxeze.proxy Testing::NestedClass
